@@ -2,6 +2,7 @@
     Dim SaveFolder As String = Nothing
     Dim BulkList As New HashSet(Of String)
     Dim errored As Boolean = False
+    Dim forceCan As Boolean = False
 
 #Region "Form"
     Private Sub MainX_Load(sender As Object, e As EventArgs) Handles MyBase.Load
@@ -18,7 +19,9 @@
     Private Sub butDL_Click(sender As Object, e As EventArgs) Handles butDL.Click
         'Busy? Empty?
         If bgDL.IsBusy Or String.IsNullOrWhiteSpace(txUrl.Text) Then
+            LbStat.Text = "Cancelling..."
             txUrl.Focus()
+            forceCan = True
             Exit Sub
         End If
 
@@ -39,6 +42,7 @@
             Exit Sub
         End If
 
+        butDL.Text = "Cancel"
         LbStat.Text = "Preparing..."
         If fbBrowse.ShowDialog = Windows.Forms.DialogResult.OK Then
             SaveFolder = fbBrowse.SelectedPath
@@ -85,12 +89,22 @@
                 Dim UrlList As HashSet(Of String) = New HashSet(Of String)(BulkList)
                 Dim xx As Integer = 0
                 For Each urlxx As String In UrlList
-                    xx += 1
-                    If My.Computer.FileSystem.FileExists(e.Argument.ToString & "\" & xx) Then
-                        My.Computer.FileSystem.DeleteFile(e.Argument.ToString & "\" & xx, FileIO.UIOption.OnlyErrorDialogs, FileIO.RecycleOption.DeletePermanently, FileIO.UICancelOption.DoNothing)
-                    End If
+                    If forceCan Then
+                        forceCan = False
+                        Exit For
+                    Else
+                        LbStat.Invoke(DirectCast(
+                                      Sub()
+                                          LbStat.Text = "Downloading " & urlxx
+                                      End Sub, MethodInvoker)
+                                  )
+                        xx += 1
+                        If My.Computer.FileSystem.FileExists(e.Argument.ToString & "\" & xx) Then
+                            My.Computer.FileSystem.DeleteFile(e.Argument.ToString & "\" & xx, FileIO.UIOption.OnlyErrorDialogs, FileIO.RecycleOption.DeletePermanently, FileIO.UICancelOption.DoNothing)
+                        End If
 
-                    webber.DownloadFile(urlxx, e.Argument.ToString & "\" & "" & xx)
+                        webber.DownloadFile(urlxx, e.Argument.ToString & "\" & "DL_" & xx)
+                    End If
                 Next
             End Using
             errored = False
@@ -107,6 +121,8 @@
         Else
             LbStat.Text = "Something went wrong :("
         End If
+
+        butDL.Text = "Download!"
     End Sub
 #End Region
 

@@ -181,10 +181,10 @@ Partial Class MainX
         Me.LbStat.ForeColor = System.Drawing.Color.Gray
         Me.LbStat.Location = New System.Drawing.Point(365, 29)
         Me.LbStat.Name = "LbStat"
-        Me.LbStat.Size = New System.Drawing.Size(117, 28)
+        Me.LbStat.Size = New System.Drawing.Size(117, 75)
         Me.LbStat.TabIndex = 6
         Me.LbStat.Text = "Ready!"
-        Me.LbStat.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
+        Me.LbStat.TextAlign = System.Drawing.ContentAlignment.TopCenter
         '
         'fbBrowse
         '
